@@ -141,4 +141,28 @@ if st.session_state.produto_selecionado is not None:
             st.session_state.infrações.append("Pneus em mau estado (Art. 230, XVIII CTB)")
             
         if st.checkbox("Vazamento ou carga mal acondicionada"):
-            st.session_state.infrações.append("Vazamento/Acondicionamento irregular (Art. 43, II, 'g')
+            st.session_state.infrações.append("Vazamento/Acondicionamento irregular (Art. 43, II, 'g') - Resp: Transp.")
+
+        if st.checkbox("Faixas Retrorrefletivas irregulares/sujas"):
+            st.session_state.infrações.append("Faixas Retrorrefletivas (Art. 230, IX CTB)")
+
+    with aba5:
+        st.subheader("Resumo para o Sistema")
+        if st.session_state.infrações:
+            # Remover duplicatas
+            lista_final = list(set(st.session_state.infrações))
+            texto_formatado = "\n".join([f"- {item}" for item in lista_final])
+            st.text_area("Copie e cole no campo de observações:", value=texto_formatado, height=200)
+            
+            if st.button("Limpar Tudo"):
+                st.session_state.infrações = []
+                st.rerun()
+        else:
+            st.success("Nenhuma irregularidade selecionada até o momento.")
+
+else:
+    st.info("Busque um produto na barra lateral para começar a fiscalização.")
+
+# Rodapé
+st.divider()
+st.caption("Desenvolvido para apoio operacional em pista. Sempre confira o MPO-005 atualizado.")
