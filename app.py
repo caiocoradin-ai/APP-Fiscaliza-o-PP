@@ -3,22 +3,31 @@ import streamlit as st
 # Configuração da interface
 st.set_page_config(page_title="Fiscalização de PP - NSV/RN", layout="centered")
 
-# Controle de fluxo interno (Navegação acumulativa)
+# Controle de fluxo interno
 if 'fluxo' not in st.session_state:
     st.session_state.fluxo = 'abertura'
 
 # =========================================================
-# PROTOCOLO DE ABERTURA - NSV/RN (CONGELADO)
+# PROTOCOLO DE ABERTURA - NSV/RN (TEXTO INTEGRAL RECUPERADO)
 # =========================================================
 if st.session_state.fluxo == 'abertura':
     st.title("🛡️ Fiscalização de Transporte de Produtos Perigosos")
     st.markdown("---")
     
-    st.markdown("""
-    ### Informativo Institucional
+    st.markdown("### Informativo Institucional")
+    st.write("""
     Este sistema foi desenvolvido pelo **Núcleo de Segurança Viária (NSV) da PRF no Rio Grande do Norte** para servir como ferramenta de suporte à decisão durante a fiscalização de veículos que transportam produtos perigosos.
 
     Prezado colega, o objetivo deste guia é otimizar o seu tempo de pista, garantindo que todos os requisitos da **Resolução ANTT nº 5.998/22** e do **CTB** sejam conferidos com precisão técnica e segurança jurídica.
+    """)
+
+    st.markdown("#### Abrangência do Procedimento:")
+    st.write("""
+    * **Qualificação Profissional:** Verificação da regularidade do condutor (CNH e CETPP).
+    * **Inspeção Técnica Veicular:** Validação de certificados CIV e CIPP para granéis.
+    * **Controle Documental:** Análise de Notas Fiscais, Declarações do Expedidor e enquadramentos de quantidade.
+    * **Segurança Operacional:** Conferência de EPIs, Conjuntos de Emergência e Sinalização Externa.
+    * **Conclusão e Enquadramentos:** Relatório consolidado de infrações e medidas administrativas.
     """)
     
     if st.button("🚀 Iniciar Procedimento de Fiscalização"):
@@ -53,11 +62,11 @@ elif st.session_state.fluxo == 'condutor':
     cnh_categoria = st.radio("A categoria do condutor é compatível com o conjunto veicular?", 
                              ["Em análise", "Sim (Compatível)", "Não (Incompatível)"])
     if cnh_categoria == "Não (Incompatível)":
-        st.error("🚨 Infração Identificada: Art. 162, III do CTB (Categoria divergente da exigida para o veículo).")
+        st.error("🚨 Infração Identificada: Art. 162, III do CTB.")
 
     st.markdown("---")
 
-    # 1.3 CURSO TÉCNICO (CETPP) - TEXTO CONGELADO E INTEGRAL
+    # 1.3 CURSO TÉCNICO (CETPP)
     st.subheader("Curso Especializado (CETPP)")
     
     with st.expander("ℹ️ Resumo Técnico sobre o Curso", expanded=True):
@@ -82,17 +91,17 @@ elif st.session_state.fluxo == 'condutor':
         st.error("🚨 Irregularidade na Qualificação Técnica:")
         st.markdown("""
         **1. Esfera de Trânsito (CTB):**
-        * **Art. 162, VII:** Conduzir veículo sem os cursos especializados previstos no CTB. (Infração Gravíssima).
+        * **Art. 162, VII:** Conduzir veículo sem os cursos especializados previstos no CTB.
         
         **2. Esfera de Transporte (Res. ANTT 5.998/22):**
-        * **Transportador (Art. 43, §2º, XIX ou XX):** Transportar produtos perigosos com condutor que não possua curso especializado ou com curso vencido.
-        * **Expedidor (Art. 43, §6º, XIII ou XXIV):** Expedir produtos perigosos em veículo cujo condutor não possua o curso especializado exigido.
+        * **Transportador (Art. 43, §2º, XIX ou XX):** Transportar PP com condutor sem curso especializado válido.
+        * **Expedidor (Art. 43, §6º, XIII ou XXIV):** Expedir PP em veículo cujo condutor não possua o curso especializado exigido.
         """)
 
         with st.warning("⚖️ Situações Especiais (Enquadramentos Penais)"):
             st.markdown("""
-            * **Crime Ambiental (Art. 56, Lei 9.605/98):** “[...] transportar [...] produto ou substância tóxica, perigosa ou nociva à saúde humana ou ao meio ambiente." Aplicável se configurada situação de grande risco.
-            * **Falsidade Documental (Art. 297/304 CP):** No caso do condutor apresentar um certificado flagrantemente falso ou adulterado (Falsificação/Uso de documento falso).
+            * **Crime Ambiental (Art. 56, Lei 9.605/98):** Transporte em desacordo com as exigências em situação de grande risco.
+            * **Falsidade Documental (Art. 297/304 CP):** Apresentação de certificado falso ou adulterado.
             """)
         
         if st.button("Prosseguir para Trajes e Caronas ➡️"):
@@ -100,7 +109,7 @@ elif st.session_state.fluxo == 'condutor':
             st.rerun()
 
 # =========================================================
-# 2. VERIFICAÇÃO DE TRAJES E PASSAGEIROS (ART. 22 E 17) - CONGELADO
+# 2. VERIFICAÇÃO DE TRAJES E PASSAGEIROS (ART. 22 E 17)
 # =========================================================
 elif st.session_state.fluxo == 'trajes_caronas':
     st.header("Verificação de Trajes e Passageiros")
@@ -109,36 +118,28 @@ elif st.session_state.fluxo == 'trajes_caronas':
         st.session_state.fluxo = 'condutor'
         st.rerun()
 
-    # 2.1 TRAJES (Art. 22 RTRPP)
-    st.subheader("Vestuário do Condutor e Auxiliares")
-    st.info("**Art. 22 do RTRPP:** Durante o transporte, o condutor e auxiliares devem usar CALÇA COMPRIDA, CAMISA ou CAMISETA (mangas curtas ou compridas) e CALÇADOS FECHADOS.")
+    # 2.1 TRAJES
+    st.subheader("Vestuário (Art. 22 RTRPP)")
+    st.info("**Art. 22 do RTRPP:** Condutor e auxiliares devem usar CALÇA COMPRIDA, CAMISA/CAMISETA e CALÇADOS FECHADOS.")
     
     traje_ok = st.radio("O vestuário está em conformidade?", ["Em análise", "Sim", "Não (Desconformidade)"])
     if traje_ok == "Não (Desconformidade)":
         st.error("🚨 Infração ANTT: Art. 43, §4º, X (Responsabilidade: Transportador).")
-        st.warning("⚠️ Medida Administrativa: O veículo só deverá prosseguir após a regularização.")
+        st.warning("⚠️ Medida Administrativa: Regularização imediata para prosseguir.")
 
     st.markdown("---")
 
-    # 2.2 CARONAS (Art. 17, I RTRPP)
-    st.subheader("Presença de Passageiros")
-    st.write("**Art. 17, Inciso I do RTRPP:** É proibido conduzir pessoas além dos auxiliares, salvo disposto em contrário.")
+    # 2.2 CARONAS
+    st.subheader("Passageiros (Art. 17, I RTRPP)")
+    st.write("**Art. 17, Inciso I do RTRPP:** Proibido conduzir pessoas além dos auxiliares.")
     
-    caronas_detectados = st.radio("Foram constatados 'caronas' no veículo?", ["Em análise", "Não", "Sim"])
+    caronas_detectados = st.radio("Foram constatados 'caronas'?", ["Em análise", "Não", "Sim"])
     if caronas_detectados == "Sim":
         st.error("🚨 Infração ANTT: Art. 43, §3º, XII (Responsabilidade: Transportador).")
-        st.warning("⚠️ Retirada obrigatória dos passageiros para prosseguimento.")
 
     if st.button("Avançar para Certificações Técnicas ➡️"):
         st.session_state.fluxo = 'documentacao_tecnica'
         st.rerun()
 
 # =========================================================
-# 3. CERTIFICAÇÕES TÉCNICAS (ÁREA DE CONSTRUÇÃO)
-# =========================================================
-elif st.session_state.fluxo == 'documentacao_tecnica':
-    st.header("Certificações Técnicas (CIV e CIPP)")
-    if st.button("⬅️ Retornar"):
-        st.session_state.fluxo = 'trajes_caronas'
-        st.rerun()
-    st.write("Deseja iniciar a construção do CIV e CIPP agora?")
+# 3
