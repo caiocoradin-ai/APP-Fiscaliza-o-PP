@@ -1,69 +1,82 @@
 import streamlit as st
 
-st.set_page_config(page_title="Bizuário PRF - PP", layout="wide")
+# Configuração da Página para visualização Mobile
+st.set_page_config(page_title="Bizuário PP - PRF", layout="centered")
 
-# --- ETAPA 0: INÍCIO DA ABORDAGEM (CONDUTOR) ---
 st.title("🛡️ Fiscalização de Produtos Perigosos")
+st.caption("Versão Digital do Bizuário Técnico - 2026")
+st.markdown("---")
+
+# =========================================================
+# ETAPA 0: INÍCIO DA ABORDAGEM (CONDUTOR)
+# =========================================================
 st.header("Etapa 0: Início da Abordagem (Condutor)")
 
 st.subheader("Passo 2.4: O condutor possui o Curso Especializado de Transporte de Produtos Perigosos (CETPP) válido e averbado?")
-st.info("**Ação Recomendada:** Verifique na CNH Digital ou pelo CPF no aplicativo 'Fiscalização Senatran'. A informação deve estar na base RENACH.")
 
-mopp = st.radio("Resultado da consulta:", ("Sim (Curso ativo no sistema)", "Não (Curso vencido, inexistente ou não averbado)"))
+with st.expander("ℹ️ Ação Recomendada (Clique para ver)", expanded=True):
+    st.write("Verifique na CNH Digital ou pelo CPF no aplicativo **'Fiscalização Senatran'**. A informação deve estar na base RENACH.")
 
-if "Não" in mopp:
+col1, col2 = st.columns(2)
+with col1:
+    mopp_sim = st.button("✅ SIM (Curso Ativo)")
+with col2:
+    mopp_nao = st.button("❌ NÃO (Vencido/Inexistente)")
+
+if mopp_nao:
     st.error("🚨 DETALHAMENTO DAS INFRAÇÕES (Em caso de 'NÃO'):")
+    
     st.markdown("""
     **1. Esfera de Trânsito (CTB):**
     * **Art. 162, VII:** Dirigir veículo sem possuir os cursos especializados previstos no CTB.
     * **Resumo:** Infração específica para o condutor que não comprova a formação técnica exigida para a carga.
 
     **2. Esfera de Transporte (Res. 5.998/22 ANTT):**
-    * **Art. 43, §2º, XIX ou XX (Transportador):** Transportar produtos perigosos com condutor sem o curso especializado ou com o curso vencido.
+    * **Art. 43, §2º, XIX ou XX (Transportador):** Transportar produtos perigosos com condutor que não possua curso especializado ou com curso vencido.
+    * **Resumo:** Responsabilidade da empresa transportadora por permitir que condutor sem o CETPP realize a viagem.
+    * **Art. 43, §6º, XIII ou XXIV (Expedidor):** Expedir produtos perigosos em veículo cujo condutor não possua o curso especializado exigido.
+    * **Resumo:** Responsabilidade de quem envia a carga por não conferir a habilitação técnica do motorista no ato do carregamento.
+    """)
+    
+    st.warning("⚖️ **ENQUADRAMENTOS CRIMINAIS (Campo de Observações):**")
+    st.markdown("""
+    * **Crime Ambiental (Art. 56 da Lei 9.605/98):** Transportar substância tóxica/nociva em desacordo com as exigências. Usar quando a falta do curso configurar grande risco à saúde ou meio ambiente.
+    * **Falsificação/Uso de Doc. Falso (Art. 297 e 304 CP):** Usar no caso de condutor apresentar certificado flagrantemente falso ou adulterado.
     """)
 
 st.divider()
 
-# --- ETAPA 1: DOCUMENTAÇÃO ESPECÍFICA ---
+# =========================================================
+# ETAPA 1: DOCUMENTAÇÃO ESPECÍFICA (CIV E CIPP)
+# =========================================================
 st.header("Etapa 1: Documentação Específica")
 
-# Filtro Inicial
-modalidade = st.radio("O transporte é realizado A GRANEL?", ("Sim (Exigir CIV e CIPP)", "Não (Carga fracionada - Pular para Próximo Passo)"))
+st.info("**Filtro Inicial:** O transporte é realizado **A GRANEL**?")
+modalidade = st.radio("Selecione a modalidade:", ["Não (Carga fracionada - Pular para sinalização)", "Sim (Exigir CIV e CIPP)"])
 
 if "Sim" in modalidade:
     # --- PASSO 5: CIV ---
-    st.subheader("Passo 5: Verificação do CIV (Certificado de Inspeção Veicular)")
-    st.write("**O que é?** Atesta que o veículo (trator ou rebocado) está em condições mecânicas e de segurança (pneus, freios, luzes).")
+    st.subheader("Passo 5: Verificação do CIV")
+    st.markdown("> **O que é o CIV?** Atesta que o veículo (trator ou rebocado) foi inspecionado pelo INMETRO e está em condições mecânicas (freios, pneus, etc).")
     
-    civ_status = st.radio("O veículo possui CIV válido?", ("Sim", "Não"))
-    if civ_status == "Não":
-        st.error("🚨 INFRAÇÃO: Art. 43, II, 'f' da Res. 5.998/22 ANTT.")
-        st.write("**Resumo:** Transportar PP em veículo sem certificado de inspeção ou vencido.")
+    with st.expander("💡 Bizu do CIV"):
+        st.write("Se for uma carreta, deve haver um CIV para o Cavalo-Trator e outro para o Semirreboque.")
 
-    st.divider()
+    c51 = st.checkbox("5.1: Apresentou CIV original (físico/digital) para TODOS os veículos?")
+    c52 = st.checkbox("5.2: O CIV está dentro da validade (Geralmente anual)?")
+    c53 = st.checkbox("5.3: Placa e Chassi no CIV conferem com o veículo?")
+
+    if not c51 or not c52 or not c53:
+        st.error("🚨 INFRAÇÃO (CIV): Art. 43, II, 'f' da Res. 5.998/22 ANTT")
+        st.write("**Resumo:** Veículo sem inspeção, vencida ou dados divergentes. **Medida:** Retenção para regularização ou transbordo.")
+
+    st.markdown("---")
 
     # --- PASSO 6: CIPP ---
     st.subheader("Passo 6: Verificação do CIPP")
-    st.write("**O que é?** Atesta a integridade do equipamento (tanque/vaso) para suportar pressão e corrosão.")
+    st.markdown("> **O que é o CIPP?** Atesta que o equipamento (tanque/silo) suporta a pressão e a corrosão do produto.")
 
-    c61 = st.radio("6.1: O condutor apresentou o CIPP original (físico ou digital)?", ("Sim", "Não"))
-    if c61 == "Não":
-        st.error("🚨 INFRAÇÃO: Art. 43, II, 'f' da Res. 5.998/22 ANTT.")
-        st.write("**Resumo:** Falta de comprovação da integridade técnica do recipiente que contém a carga perigosa.")
-
-    c62 = st.radio("6.2: O CIPP está dentro do prazo de validade?", ("Sim", "Não"))
-    if c62 == "Não":
-        st.error("🚨 INFRAÇÃO: Art. 43, II, 'f' da Res. 5.998/22 ANTT.")
-        st.write("**Resumo:** O equipamento está com sua inspeção de segurança expirada, oferecendo risco de vazamento ou ruptura.")
-
-    c63 = st.radio("6.3: O número do equipamento confere com o número constante no CIPP?", ("Sim", "Não"))
-    if c63 == "Não":
-        st.error("🚨 INFRAÇÃO: Art. 43, II, 'f' da Res. 5.998/22 ANTT (CIPP não correspondente).")
-
-    c64 = st.radio("6.4: O produto transportado é compatível com os autorizados no verso do CIPP?", ("Sim", "Não"))
-    if c64 == "Não":
-        st.error("🚨 INFRAÇÃO: Art. 43, II, 'd' da Res. 5.998/22 ANTT.")
-        st.write("**Resumo:** O tanque não foi projetado ou testado para a reatividade ou pressão daquele produto específico.")
-
-st.divider()
-st.write("🔄 Aguardando próximos passos do Bizuário...")
+    c61 = st.checkbox("6.1: Apresentou CIPP original (nome do proprietário conferindo)?")
+    c62 = st.checkbox("6.2: CIPP está na validade (6 meses a 3 anos conforme o produto)?")
+    c63 = st.checkbox("6.3: Número do equipamento (placa do tanque) confere com o CIPP?")
+    c64 = st.checkbox("6.4: Produto na NF é compatível
