@@ -17,6 +17,7 @@ st.subheader("Passo 2.4: O condutor possui o Curso Especializado de Transporte d
 with st.expander("ℹ️ Ação Recomendada (Clique para ver)", expanded=True):
     st.write("Verifique na CNH Digital ou pelo CPF no aplicativo **'Fiscalização Senatran'**. A informação deve estar na base RENACH.")
 
+# Usando colunas para os botões de decisão
 col1, col2 = st.columns(2)
 with col1:
     mopp_sim = st.button("✅ SIM (Curso Ativo)")
@@ -79,4 +80,15 @@ if "Sim" in modalidade:
     c61 = st.checkbox("6.1: Apresentou CIPP original (nome do proprietário conferindo)?")
     c62 = st.checkbox("6.2: CIPP está na validade (6 meses a 3 anos conforme o produto)?")
     c63 = st.checkbox("6.3: Número do equipamento (placa do tanque) confere com o CIPP?")
-    c64 = st.checkbox("6.4: Produto na NF é compatível
+    c64 = st.checkbox("6.4: Produto na NF é compatível com os autorizados no verso do CIPP?")
+
+    if not c61 or not c62 or not c63:
+        st.error("🚨 INFRAÇÃO (CIPP): Art. 43, II, 'f' da Res. 5.998/22 ANTT")
+        st.write("**Resumo:** Falta de integridade técnica do recipiente. **Medida:** Retenção.")
+    
+    if not c64:
+        st.error("🚨 INFRAÇÃO (CIPP): Art. 43, II, 'd' da Res. 5.998/22 ANTT")
+        st.write("**Resumo:** Tanque NÃO autorizado para este produto específico. **Medida:** Retenção para transbordo.")
+
+st.divider()
+st.info("Aguardando as próximas etapas: Documentação de Transporte (Passo 11)...")
