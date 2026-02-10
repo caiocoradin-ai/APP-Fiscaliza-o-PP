@@ -1,75 +1,62 @@
-import webbrowser
+import streamlit as st
 
-def fiscalizacao_pp():
-    print("=== SIMULADOR DE FISCALIZAÇÃO DE PRODUTOS PERIGOSOS (PRÉVIA) ===")
-    
-    # --- ETAPA 0: CONDUTOR ---
-    nome_condutor = input("\nNome do Condutor: ")
-    mopp = input("Possui CETPP (MOPP) ativo no App Senatran? (s/n): ").lower()
-    
-    if mopp == 'n':
-        print("\n[!] ALERTA DE INFRAÇÃO (CONDUTOR):")
-        print("- CTB: Art. 162, VII (Falta de curso especializado)")
-        print("- ANTT: Art. 43, §2º, XIX/XX (Transportador) e §6º, XIII/XXIV (Expedidor)")
-        print("- OBS: Avaliar Crime Ambiental (Art. 56 Lei 9.605/98) se houver grande risco.")
-    
-    # --- ETAPA 0.1: TACÓGRAFO ---
-    pbt = float(input("\nInforme o PBT do veículo (em kg): "))
-    if pbt > 4536:
-        print(">> Veículo OBRIGADO a uso de Cronotacógrafo.")
-        ver_inmetro = input("Deseja abrir o site do Inmetro para verificar a placa? (s/n): ").lower()
-        if ver_inmetro == 's':
-            webbrowser.open("https://cronotacografo.rbmlq.gov.br/certificados/consultar")
-    else:
-        print(">> Veículo DISPENSADO de Cronotacógrafo.")
+st.set_page_config(page_title="Fiscalização PP - PRF", layout="centered")
 
-    # --- ETAPA 1: FILTRO DE MODALIDADE ---
-    print("\nMODALIDADE DE TRANSPORTE:")
-    print("1 - A Granel (Tanque, Caçamba, etc)")
-    print("2 - Fracionado (Caixas, Tambores, etc)")
-    modalidade = input("Escolha: ")
+st.title("🛡️ Sistema de Fiscalização PP")
+st.subheader("Consultoria Técnica de Produtos Perigosos")
 
-    # --- ETAPA 1.1: INTELIGÊNCIA DE ISENÇÃO (QUANTIDADE LIMITADA) ---
-    # Simulação de base de dados simplificada (ONU: Limite em kg)
-    db_isencao = {"1203": 333, "1202": 1000, "1005": 20} # Exemplos: Gasolina, Diesel, Amônia
-    
-    onu = input("\nDigite o Número ONU da carga: ")
-    qtd = float(input("Digite a Quantidade Total (kg/L): "))
+# --- ETAPA 0: CONDUTOR ---
+st.header("1. Identificação do Condutor")
+cpf = st.text_input("CPF do Condutor (Para consulta no Senatran)")
+mopp = st.radio("O condutor possui CETPP (MOPP) ativo no sistema?", ("Sim", "Não"))
 
-    isento = False
+if mopp == "Não":
+    st.error("🚨 INFRAÇÃO DETECTADA")
+    st.write("**Enquadramentos:**")
+    st.write("- **Trânsito:** Art. 162, VII do CTB (Falta de curso especializado).")
+    st.write("- **Transporte (ANTT):** Art. 43, §2º, XIX/XX (Transportador) e §6º, XIII/XXIV (Expedidor).")
+    st.warning("⚠️ **ALERTA CRIMINAL:** Avaliar Crime Ambiental (Art. 56 Lei 9.605/98) se houver grande risco.")
+
+st.divider()
+
+# --- ETAPA 0.1: TACÓGRAFO ---
+st.header("2. Equipamento Obrigatório")
+pbt = st.number_input("Informe o PBT do veículo (kg):", value=0)
+
+if pbt > 4536:
+    st.info("📌 Veículo OBRIGADO a uso de Cronotacógrafo.")
+    st.markdown("[Clique aqui para consultar aferição no INMETRO](https://cronotacografo.rbmlq.gov.br/certificados/consultar)")
+else:
+    st.success("✅ Veículo DISPENSADO de Cronotacógrafo.")
+
+st.divider()
+
+# --- ETAPA 1: INTELIGÊNCIA DE CARGA ---
+st.header("3. Inteligência de Carga")
+modalidade = st.selectbox("Modalidade de Transporte:", ["Selecione", "A Granel", "Fracionado"])
+
+if modalidade != "Selecione":
+    onu = st.text_input("Digite o Número ONU (ex: 1203):")
+    qtd = st.number_input("Quantidade Total (kg ou L):", value=0)
+
+    # Simulação da base de dados (Exemplos)
+    db_isencao = {"1203": 333, "1202": 1000, "1005": 20}
+
     if onu in db_isencao:
         limite = db_isencao[onu]
         if qtd <= limite:
-            isento = True
-            print(f"\n✅ CARGA IDENTIFICADA COMO QUANTIDADE LIMITADA (Limite: {limite}kg).")
-            print(">> Dispensa: MOPP, CIV, CIPP e Sinalização Externa.")
+            st.success(f"✅ CARGA EM QUANTIDADE LIMITADA (Isenta). Limite para ONU {onu} é {limite}kg.")
+            st.write("Dispensa: MOPP, CIV, CIPP e Sinalização Externa.")
         else:
-            print(f"\n⚠️ CARGA PLENA DETECTADA (Limite de {limite}kg excedido).")
-    else:
-        print("\n⚠️ ONU não encontrado na base de isenção simples. Tratando como CARGA PLENA.")
-
-    # --- ETAPA 2: DOCUMENTAÇÃO TÉCNICA (SOMENTE SE CARGA PLENA) ---
-    if not isento:
-        print("\n--- CHECKLIST DE DOCUMENTAÇÃO (CARGA PLENA) ---")
-        
-        # NF
-        declara_exp = input("Possui 'Declaração do Expedidor' na NF? (s/n): ").lower()
-        if declara_exp == 'n':
-            print("[!] INFRAÇÃO: Art. 43, III, 'a' da Res. 5.998/22 (Falta de Declaração).")
-
-        # CIV/CIPP (Somente Granel)
-        if modalidade == '1':
-            print("\nVERIFICAÇÃO DE CERTIFICADOS (A GRANEL):")
-            civ = input("CIV está válido e presente? (s/n): ").lower()
-            if civ == 'n':
-                print("[!] INFRAÇÃO: Art. 43, II, 'f' da Res. 5.998/22 (CIV Inválido/Ausente).")
+            st.warning(f"⚠️ CARGA PLENA. Limite de {limite}kg excedido.")
             
-            cipp = input("CIPP é compatível com o produto e está válido? (s/n): ").lower()
-            if cipp == 'n':
-                print("[!] INFRAÇÃO: Art. 43, II, 'f' ou 'd' (CIPP Incompatível/Vencido).")
+            # Se for Granel, exige CIV e CIPP
+            if modalidade == "A Granel":
+                st.subheader("Documentação Técnica (A Granel)")
+                civ = st.checkbox("CIV Válido e Presente?")
+                cipp = st.checkbox("CIPP Válido e Compatível?")
+                if not civ or not cipp:
+                    st.error("🚨 INFRAÇÃO: Art. 43, II, 'f' da Res. 5.998/22.")
 
-    print("\n=== FIM DA SIMULAÇÃO ATÉ O MOMENTO ===")
-
-# Executar teste
-if __name__ == "__main__":
-    fiscalizacao_pp()
+st.divider()
+st.info("Próximo passo: Verificação de Sinalização e Estiva...")
