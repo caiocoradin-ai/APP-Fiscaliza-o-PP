@@ -8,25 +8,29 @@ if 'pagina' not in st.session_state:
     st.session_state.pagina = 'Inicio'
 
 # =========================================================
-# TELA DE INÍCIO: CONVERSA COM O COLEGA PRF
+# TELA DE INÍCIO: LINGUAGEM FORMAL E DIRETRIZES
 # =========================================================
 if st.session_state.pagina == 'Inicio':
-    st.title("🛡️ Sistema de Apoio - Produtos Perigosos")
-    st.subheader("Fala, colega PRF! 👊")
+    st.title("🛡️ Sistema de Apoio à Fiscalização")
+    st.subheader("Transporte Rodoviário de Produtos Perigosos")
     
     st.markdown("""
-    Este aplicativo foi desenhado para facilitar nossa vida na pista. A fiscalização de **Produtos Perigosos (PP)** é complexa e cheia de detalhes, mas com este guia passo a passo, você não vai deixar passar nenhum enquadramento.
+    Prezado colega, 
     
-    **O que vamos fazer aqui?**
-    1. Verificar a regularidade do condutor.
-    2. Validar certificados técnicos (CIV/CIPP) se for a granel.
-    3. Analisar a documentação fiscal e isenções.
-    4. Conferir sinalização e equipamentos de segurança.
+    Este sistema foi desenvolvido para subsidiar a fiscalização técnica de veículos transportando produtos perigosos, garantindo a correta aplicação da **Resolução ANTT nº 5.998/22** e do **Código de Trânsito Brasileiro**.
 
-    Tudo conforme a **Resolução ANTT 5.998/22** e o **CTB**.
+    **Escopo da Fiscalização:**
+    O procedimento está estruturado nas seguintes etapas sequenciais:
+    
+    1.  **Habilitação Técnica:** Verificação do condutor e validade do CETPP (MOPP).
+    2.  **Certificação do Conjunto:** Análise dos certificados CIV e CIPP (para transporte a granel).
+    3.  **Documentação de Transporte:** Conferência de Nota Fiscal, Declaração do Expedidor e cálculo automático de isenções/quantidades limitadas.
+    4.  **Equipamentos de Segurança:** Inspeção de EPIs e Kit de Emergência.
+    5.  **Sinalização e Acondicionamento:** Verificação de painéis de segurança, rótulos de risco e estiva da carga.
+    6.  **Relatório de Desfecho:** Compilação final de todos os enquadramentos, medidas administrativas e infrações identificadas.
     """)
     
-    if st.button("🚀 Iniciar Fiscalização de PP"):
+    if st.button("🚀 Iniciar Procedimento de Fiscalização"):
         st.session_state.pagina = 'Etapa 0'
         st.rerun()
 
@@ -34,57 +38,58 @@ if st.session_state.pagina == 'Inicio':
 # ETAPA 0: INÍCIO DA ABORDAGEM (CONDUTOR)
 # =========================================================
 elif st.session_state.pagina == 'Etapa 0':
-    st.header("Etapa 0: Início da Abordagem (Condutor)")
+    st.header("Etapa 0: Identificação do Condutor")
     
-    st.subheader("Passo 2.4: O condutor possui o Curso Especializado de Transporte de Produtos Perigosos (CETPP) válido e averbado?")
+    st.subheader("Passo 2.4: Verificação do Curso Especializado (CETPP)")
     
-    with st.expander("📝 Ação Recomendada", expanded=True):
-        st.write("Verifique na CNH Digital ou pelo CPF no aplicativo 'Fiscalização Senatran'. A informação deve estar na base RENACH.")
+    with st.expander("📝 Procedimento Operacional", expanded=True):
+        st.write("Realize a consulta via CNH Digital ou através do CPF no sistema 'Fiscalização Senatran'. A validade e a averbação devem constar na base RENACH.")
 
     # Opções de Seleção
-    mopp_status = st.radio("Selecione o status do curso:", 
-                           ["Aguardando Verificação", "Sim (Curso ativo no sistema)", "Não (Curso vencido, inexistente ou não averbado)"])
+    mopp_status = st.radio("Status do curso no sistema:", 
+                           ["Aguardando Verificação", "Regular (Curso ativo e averbado)", "Irregular (Vencido, inexistente ou não averbado)"])
 
-    if mopp_status == "Sim (Curso ativo no sistema)":
-        st.success("Condutor regularizado.")
-        if st.button("Avançar para Etapa 1 ➡️"):
+    if mopp_status == "Regular (Curso ativo e averbado)":
+        st.success("Habilitação técnica confirmada.")
+        if st.button("Avançar para Etapa 1 (Documentação Técnica) ➡️"):
             st.session_state.pagina = 'Etapa 1'
             st.rerun()
 
-    elif mopp_status == "Não (Curso vencido, inexistente ou não averbado)":
-        st.error("🚨 Detalhamento das Infrações (Em caso de 'NÃO'):")
+    elif mopp_status == "Irregular (Vencido, inexistente ou não averbado)":
+        st.error("🚨 Identificação de Irregularidade:")
         
         st.markdown("### 1. Esfera de Trânsito (CTB):")
-        st.info("**Art. 162, VII:** Dirigir veículo sem possuir os cursos especializados previstos no CTB.\n\n**Resumo:** Infração específica para o condutor que não comprova a formação técnica exigida para a carga.")
+        st.info("**Art. 162, VII:** Conduzir veículo sem possuir os cursos especializados previstos no CTB.\n\n**Resumo:** Infração imputada ao condutor pela ausência de comprovação da formação técnica exigida.")
         
         st.markdown("### 2. Esfera de Transporte (Res. 5.998/22 ANTT):")
         st.markdown("""
-        **Art. 43, §2º, XIX ou XX (Transportador):** Transportar produtos perigosos com condutor que não possua curso especializado ou com curso vencido.
-        * **Resumo:** Responsabilidade da empresa transportadora por permitir que condutor sem o CETPP realize a viagem.
+        **Art. 43, §2º, XIX ou XX (Transportador):** Transportar produtos perigosos com condutor desprovido de curso especializado ou com validade expirada.
+        * **Análise:** Responsabilidade do transportador por permitir a operação por condutor não habilitado tecnicamente.
         
         **Art. 43, §6º, XIII ou XXIV (Expedidor):** Expedir produtos perigosos em veículo cujo condutor não possua o curso especializado exigido.
-        * **Resumo:** Responsabilidade de quem envia a carga por não conferir a habilitação técnica do motorista no ato do carregamento.
+        * **Análise:** Responsabilidade do expedidor pela falha na conferência documental no ato do carregamento.
         """)
 
-        st.warning("⚖️ Enquadramentos Criminais (Campo de Observações):")
+        st.warning("⚖️ Enquadramentos Criminais e Observações:")
         st.markdown("""
-        **Crime Ambiental (Art. 56 da Lei 9.605/98):**
-        * **O que é:** Transportar substância tóxica ou nociva em desacordo com as exigências estabelecidas em leis ou regulamentos.
-        * **Quando usar:** Quando a falta do curso, somada às condições da carga, configurar uma situação de grande risco à saúde ou ao meio ambiente.
+        **Lei nº 9.605/98, Art. 56 (Crime Ambiental):**
+        * Configura-se ao transportar substância tóxica ou nociva em desacordo com as exigências legais, resultando em perigo à saúde pública ou ao meio ambiente.
 
-        **Falsificação de Documento Público (Art. 297 CP) / Uso de Documento Falso (Art. 304 CP):**
-        * **O que é:** Falsificar, alterar ou fazer uso de papéis falsificados.
-        * **Quando usar:** No caso do condutor apresentar um certificado de curso flagrantemente falso ou com sinais de adulteração.
+        **Código Penal, Art. 297 e 304 (Falsidade Documental):**
+        * Aplicável em situações de detecção de certificados com indícios de contrafação ou adulteração.
         """)
         
-        if st.button("Prosseguir mesmo com Infração ➡️"):
+        if st.button("Prosseguir com a Fiscalização ➡️"):
             st.session_state.pagina = 'Etapa 1'
             st.rerun()
 
-# Espaço reservado para as próximas etapas
+# =========================================================
+# ETAPA 1: DOCUMENTAÇÃO ESPECÍFICA (RESERVA)
+# =========================================================
 elif st.session_state.pagina == 'Etapa 1':
-    st.header("Etapa 1: Documentação Específica")
-    st.write("Aguardando o conteúdo da Etapa 1 (CIV/CIPP)...")
-    if st.button("⬅️ Voltar"):
+    st.header("Etapa 1: Certificações Técnicas (CIV/CIPP)")
+    st.write("Aguardando inserção de dados conforme o rito da fiscalização...")
+    
+    if st.button("⬅️ Retornar à Etapa Anterior"):
         st.session_state.pagina = 'Etapa 0'
         st.rerun()
