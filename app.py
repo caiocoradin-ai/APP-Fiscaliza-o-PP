@@ -150,4 +150,7 @@ elif st.session_state.fluxo == 'trajes_caronas':
 # =========================================================
 elif st.session_state.fluxo == 'documentacao_tecnica':
     st.header("Certificações Técnicas (CIV e CIPP)")
-    if st.button("⬅️ Retorn
+    if st.button("⬅️ Retornar"):
+        st.session_state.fluxo = 'trajes_caronas'
+        st.rerun()
+    st.write("Deseja iniciar a construção dos itens de CIV e CIPP agora?")
