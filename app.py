@@ -1,21 +1,39 @@
 import streamlit as st
 
-# Configuração da página para garantir que não corte o texto em telas menores
+# Configuração da página
 st.set_page_config(page_title="Bizuário PP - PRF", layout="centered")
 
-# Inicialização do controle de navegação
+# Inicialização do controle de navegação e estado
 if 'pagina' not in st.session_state:
-    st.session_state.pagina = 'Etapa 0'
+    st.session_state.pagina = 'Inicio'
 
-# Título do Aplicativo
-st.title("🛡️ Fiscalização de Produtos Perigosos")
-st.caption("Versão Digital do Bizuário Técnico - 2026")
-st.markdown("---")
+# =========================================================
+# TELA DE INÍCIO: CONVERSA COM O COLEGA PRF
+# =========================================================
+if st.session_state.pagina == 'Inicio':
+    st.title("🛡️ Sistema de Apoio - Produtos Perigosos")
+    st.subheader("Fala, colega PRF! 👊")
+    
+    st.markdown("""
+    Este aplicativo foi desenhado para facilitar nossa vida na pista. A fiscalização de **Produtos Perigosos (PP)** é complexa e cheia de detalhes, mas com este guia passo a passo, você não vai deixar passar nenhum enquadramento.
+    
+    **O que vamos fazer aqui?**
+    1. Verificar a regularidade do condutor.
+    2. Validar certificados técnicos (CIV/CIPP) se for a granel.
+    3. Analisar a documentação fiscal e isenções.
+    4. Conferir sinalização e equipamentos de segurança.
+
+    Tudo conforme a **Resolução ANTT 5.998/22** e o **CTB**.
+    """)
+    
+    if st.button("🚀 Iniciar Fiscalização de PP"):
+        st.session_state.pagina = 'Etapa 0'
+        st.rerun()
 
 # =========================================================
 # ETAPA 0: INÍCIO DA ABORDAGEM (CONDUTOR)
 # =========================================================
-if st.session_state.pagina == 'Etapa 0':
+elif st.session_state.pagina == 'Etapa 0':
     st.header("Etapa 0: Início da Abordagem (Condutor)")
     
     st.subheader("Passo 2.4: O condutor possui o Curso Especializado de Transporte de Produtos Perigosos (CETPP) válido e averbado?")
