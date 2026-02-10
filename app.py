@@ -1,71 +1,75 @@
-import streamlit as st
+import webbrowser
 
-# CONFIGURAÇÃO DA PÁGINA
-st.set_page_config(page_title="Passo a Passo - Fiscalização PP", layout="centered")
-
-st.title("🚓 Guia de Fiscalização de Produtos Perigosos")
-st.write("Siga os passos abaixo na ordem da abordagem.")
-
-# Inicialização das infrações
-if 'lista_multas' not in st.session_state:
-    st.session_state.lista_multas = []
-
-# --- ETAPA 1: CONDUTOR ---
-st.header("1. Verificação do Condutor")
-st.info("Instrução: Solicite a CNH e verifique no sistema se o condutor possui o curso MOPP atualizado. Verifique também se ele utiliza calça comprida, camisa e calçado fechado.")
-
-mopp = st.radio("O condutor possui MOPP e traje adequado?", ("Sim", "Não"), index=0, key="c1")
-if mopp == "Não":
-    if "Infração: Condutor sem curso MOPP ou traje inadequado (Art. 43, II, 'a'/'b' Res. 5998/22)" not in st.session_state.lista_multas:
-        st.session_state.lista_multas.append("Infração: Condutor sem curso MOPP ou traje inadequado (Art. 43, II, 'a'/'b' Res. 5998/22)")
-
-st.divider()
-
-# --- ETAPA 2: EQUIPAMENTO ---
-st.header("2. Cronotacógrafo e Jornada")
-st.info("Instrução: Verifique o certificado de aferição do cronotacógrafo e analise o disco/fita. O motorista deve respeitar 5h30 de direção por 30min de descanso.")
-
-taco = st.radio("Tacógrafo aferido e jornada respeitada?", ("Sim", "Não"), index=0, key="c2")
-if taco == "Não":
-    if "Infração: Tacógrafo irregular ou Excesso de Jornada (Art. 230, X ou XXIII do CTB)" not in st.session_state.lista_multas:
-        st.session_state.lista_multas.append("Infração: Tacógrafo irregular ou Excesso de Jornada (Art. 230, X ou XXIII do CTB)")
-
-st.divider()
-
-# --- ETAPA 3: DOCUMENTOS TÉCNICOS ---
-st.header("3. CIV e CIPP")
-st.info("Instrução: Peça os certificados de inspeção do veículo (CIV) e do equipamento (CIPP). Verifique se as datas de validade estão em dia.")
-
-docs = st.radio("CIV e CIPP estão presentes e na validade?", ("Sim", "Não"), index=0, key="c3")
-if docs == "Não":
-    if "Infração: Documentos técnicos vencidos ou inexistentes (Art. 43, II, 'f' Res. 5998/22)" not in st.session_state.lista_multas:
-        st.session_state.lista_multas.append("Infração: Documentos técnicos vencidos ou inexistentes (Art. 43, II, 'f' Res. 5998/22)")
-
-st.divider()
-
-# --- ETAPA 4: SINALIZAÇÃO E CARGA ---
-st.header("4. Visual do Veículo e NF")
-st.info("Instrução: Confira se os painéis laranjas e rótulos de risco correspondem ao produto na Nota Fiscal. Verifique se há vazamentos visíveis.")
-
-carga = st.radio("Sinalização correta e carga sem vazamentos?", ("Sim", "Não"), index=0, key="c4")
-if carga == "Não":
-    if "Infração: Sinalização irregular ou vazamento (Art. 43, I ou II, 'g' Res. 5998/22)" not in st.session_state.lista_multas:
-        st.session_state.lista_multas.append("Infração: Sinalização irregular ou vazamento (Art. 43, I ou II, 'g' Res. 5998/22)")
-
-st.divider()
-
-# --- RESULTADO FINAL ---
-st.header("🏁 Resultado da Fiscalização")
-
-if st.button("GERAR RELATÓRIO DE INFRAÇÕES"):
-    if st.session_state.lista_multas:
-        st.error("🚨 Irregularidades encontradas:")
-        for multa in st.session_state.lista_multas:
-            st.write(multa)
-        st.info("Sugestão: Copie os enquadramentos acima para o seu sistema de multas.")
+def fiscalizacao_pp():
+    print("=== SIMULADOR DE FISCALIZAÇÃO DE PRODUTOS PERIGOSOS (PRÉVIA) ===")
+    
+    # --- ETAPA 0: CONDUTOR ---
+    nome_condutor = input("\nNome do Condutor: ")
+    mopp = input("Possui CETPP (MOPP) ativo no App Senatran? (s/n): ").lower()
+    
+    if mopp == 'n':
+        print("\n[!] ALERTA DE INFRAÇÃO (CONDUTOR):")
+        print("- CTB: Art. 162, VII (Falta de curso especializado)")
+        print("- ANTT: Art. 43, §2º, XIX/XX (Transportador) e §6º, XIII/XXIV (Expedidor)")
+        print("- OBS: Avaliar Crime Ambiental (Art. 56 Lei 9.605/98) se houver grande risco.")
+    
+    # --- ETAPA 0.1: TACÓGRAFO ---
+    pbt = float(input("\nInforme o PBT do veículo (em kg): "))
+    if pbt > 4536:
+        print(">> Veículo OBRIGADO a uso de Cronotacógrafo.")
+        ver_inmetro = input("Deseja abrir o site do Inmetro para verificar a placa? (s/n): ").lower()
+        if ver_inmetro == 's':
+            webbrowser.open("https://cronotacografo.rbmlq.gov.br/certificados/consultar")
     else:
-        st.success("✅ Nenhuma irregularidade detectada. Veículo liberado!")
+        print(">> Veículo DISPENSADO de Cronotacógrafo.")
 
-if st.button("Limpar e Nova Abordagem"):
-    st.session_state.lista_multas = []
-    st.rerun()
+    # --- ETAPA 1: FILTRO DE MODALIDADE ---
+    print("\nMODALIDADE DE TRANSPORTE:")
+    print("1 - A Granel (Tanque, Caçamba, etc)")
+    print("2 - Fracionado (Caixas, Tambores, etc)")
+    modalidade = input("Escolha: ")
+
+    # --- ETAPA 1.1: INTELIGÊNCIA DE ISENÇÃO (QUANTIDADE LIMITADA) ---
+    # Simulação de base de dados simplificada (ONU: Limite em kg)
+    db_isencao = {"1203": 333, "1202": 1000, "1005": 20} # Exemplos: Gasolina, Diesel, Amônia
+    
+    onu = input("\nDigite o Número ONU da carga: ")
+    qtd = float(input("Digite a Quantidade Total (kg/L): "))
+
+    isento = False
+    if onu in db_isencao:
+        limite = db_isencao[onu]
+        if qtd <= limite:
+            isento = True
+            print(f"\n✅ CARGA IDENTIFICADA COMO QUANTIDADE LIMITADA (Limite: {limite}kg).")
+            print(">> Dispensa: MOPP, CIV, CIPP e Sinalização Externa.")
+        else:
+            print(f"\n⚠️ CARGA PLENA DETECTADA (Limite de {limite}kg excedido).")
+    else:
+        print("\n⚠️ ONU não encontrado na base de isenção simples. Tratando como CARGA PLENA.")
+
+    # --- ETAPA 2: DOCUMENTAÇÃO TÉCNICA (SOMENTE SE CARGA PLENA) ---
+    if not isento:
+        print("\n--- CHECKLIST DE DOCUMENTAÇÃO (CARGA PLENA) ---")
+        
+        # NF
+        declara_exp = input("Possui 'Declaração do Expedidor' na NF? (s/n): ").lower()
+        if declara_exp == 'n':
+            print("[!] INFRAÇÃO: Art. 43, III, 'a' da Res. 5.998/22 (Falta de Declaração).")
+
+        # CIV/CIPP (Somente Granel)
+        if modalidade == '1':
+            print("\nVERIFICAÇÃO DE CERTIFICADOS (A GRANEL):")
+            civ = input("CIV está válido e presente? (s/n): ").lower()
+            if civ == 'n':
+                print("[!] INFRAÇÃO: Art. 43, II, 'f' da Res. 5.998/22 (CIV Inválido/Ausente).")
+            
+            cipp = input("CIPP é compatível com o produto e está válido? (s/n): ").lower()
+            if cipp == 'n':
+                print("[!] INFRAÇÃO: Art. 43, II, 'f' ou 'd' (CIPP Incompatível/Vencido).")
+
+    print("\n=== FIM DA SIMULAÇÃO ATÉ O MOMENTO ===")
+
+# Executar teste
+if __name__ == "__main__":
+    fiscalizacao_pp()
