@@ -8,7 +8,7 @@ if 'fluxo' not in st.session_state:
     st.session_state.fluxo = 'abertura'
 
 # =========================================================
-# PROTOCOLO DE ABERTURA - NSV/RN (TEXTO INTEGRAL RECUPERADO)
+# PROTOCOLO DE ABERTURA - NSV/RN
 # =========================================================
 if st.session_state.fluxo == 'abertura':
     st.title("🛡️ Fiscalização de Transporte de Produtos Perigosos")
@@ -35,7 +35,7 @@ if st.session_state.fluxo == 'abertura':
         st.rerun()
 
 # =========================================================
-# 1. QUALIFICAÇÃO PROFISSIONAL DO CONDUTOR (CONGELADO)
+# 1. QUALIFICAÇÃO PROFISSIONAL DO CONDUTOR
 # =========================================================
 elif st.session_state.fluxo == 'condutor':
     st.header("Qualificação Profissional do Condutor")
@@ -45,7 +45,7 @@ elif st.session_state.fluxo == 'condutor':
     cnh_validade = st.radio("A CNH encontra-se dentro do prazo de validade?", 
                             ["Em análise", "Sim (Documento válido)", "Não (Vencida há mais de 30 dias)"])
     if cnh_validade == "Não (Vencida há mais de 30 dias)":
-        st.error("🚨 Infração Identificada: Art. 162, V do CTB (Conduzir veículo com CNH vencida há mais de 30 dias).")
+        st.error("🚨 **Infração Gravíssima:** Art. 162, V do CTB (CNH vencida há mais de 30 dias).")
 
     st.markdown("---")
 
@@ -62,7 +62,7 @@ elif st.session_state.fluxo == 'condutor':
     cnh_categoria = st.radio("A categoria do condutor é compatível com o conjunto veicular?", 
                              ["Em análise", "Sim (Compatível)", "Não (Incompatível)"])
     if cnh_categoria == "Não (Incompatível)":
-        st.error("🚨 Infração Identificada: Art. 162, III do CTB.")
+        st.error("🚨 **Infração Gravíssima:** Art. 162, III do CTB (Dirigir com categoria diferente).")
 
     st.markdown("---")
 
@@ -91,7 +91,7 @@ elif st.session_state.fluxo == 'condutor':
         st.error("🚨 Irregularidade na Qualificação Técnica:")
         st.markdown("""
         **1. Esfera de Trânsito (CTB):**
-        * **Art. 162, VII:** Conduzir veículo sem os cursos especializados previstos no CTB.
+        * **Art. 162, VII:** Conduzir veículo sem os cursos especializados previstos no CTB. (**Infração Gravíssima**).
         
         **2. Esfera de Transporte (Res. ANTT 5.998/22):**
         * **Transportador (Art. 43, §2º, XIX ou XX):** Transportar PP com condutor sem curso especializado válido.
@@ -124,8 +124,8 @@ elif st.session_state.fluxo == 'trajes_caronas':
     
     traje_ok = st.radio("O vestuário está em conformidade?", ["Em análise", "Sim", "Não (Desconformidade)"])
     if traje_ok == "Não (Desconformidade)":
-        st.error("🚨 Infração ANTT: Art. 43, §4º, X (Responsabilidade: Transportador).")
-        st.warning("⚠️ Medida Administrativa: Regularização imediata para prosseguir.")
+        st.error("🚨 **Infração (ANTT):** Art. 43, §4º, X (Responsabilidade: Transportador).")
+        st.warning("⚠️ **Medida Administrativa:** O veículo só deverá prosseguir após a regularização.")
 
     st.markdown("---")
 
@@ -135,11 +135,19 @@ elif st.session_state.fluxo == 'trajes_caronas':
     
     caronas_detectados = st.radio("Foram constatados 'caronas'?", ["Em análise", "Não", "Sim"])
     if caronas_detectados == "Sim":
-        st.error("🚨 Infração ANTT: Art. 43, §3º, XII (Responsabilidade: Transportador).")
+        st.error("🚨 **Infração (ANTT):** Art. 43, §3º, XII (Responsabilidade: Transportador).")
+        st.warning("⚠️ **Ação:** Retirada imediata dos passageiros.")
 
     if st.button("Avançar para Certificações Técnicas ➡️"):
         st.session_state.fluxo = 'documentacao_tecnica'
         st.rerun()
 
 # =========================================================
-# 3
+# 3. CERTIFICAÇÕES TÉCNICAS
+# =========================================================
+elif st.session_state.fluxo == 'documentacao_tecnica':
+    st.header("Certificações Técnicas (CIV e CIPP)")
+    if st.button("⬅️ Retornar"):
+        st.session_state.fluxo = 'trajes_caronas'
+        st.rerun()
+    st.write("Damos início agora à inspeção técnica dos equipamentos.")
